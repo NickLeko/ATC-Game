@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Airport Tower</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <div class="overlay menu-screen" id="menu-screen">
+      <div class="overlay-card menu-card">
+        <p class="eyebrow">Arcade Tower Control</p>
+        <h1>Airport Tower</h1>
+        <p class="intro">
+          Keep two runways moving without breaking safety. Land arrivals, launch departures, and stop the airport from stalling out.
+        </p>
+
+        <div class="menu-grid">
+          <section class="menu-panel menu-panel--setup">
+            <h2>Difficulty</h2>
+            <div class="segmented" id="difficulty-selector">
+              <button class="segment is-active" data-difficulty="easy" type="button">Easy</button>
+              <button class="segment" data-difficulty="medium" type="button">Medium</button>
+              <button class="segment" data-difficulty="expert" type="button">Expert</button>
+            </div>
+
+            <h2>Round Length</h2>
+            <div class="segmented" id="round-selector">
+              <button class="segment is-active" data-round="300" type="button">5 Minutes</button>
+              <button class="segment" data-round="600" type="button">10 Minutes</button>
+            </div>
+
+            <div class="menu-actions">
+              <button class="primary-btn" id="start-game-btn" type="button">Start Game</button>
+              <div class="menu-high-score" id="menu-high-score">Best score: --</div>
+            </div>
+
+            <div class="menu-mini-brief">
+              <div class="menu-mini-brief__row">
+                <span>Fast Goal</span>
+                <strong>Move traffic fast without using an unsafe runway window.</strong>
+              </div>
+              <div class="menu-mini-brief__row">
+                <span>Lose Condition</span>
+                <strong>Any serious runway conflict ends the shift immediately.</strong>
+              </div>
+            </div>
+          </section>
+
+          <section class="menu-panel menu-panel--briefing">
+            <div class="menu-briefing-head">
+              <div>
+                <h2>Shift Brief</h2>
+                <p class="menu-panel-copy">You only need one flow: select, assign, clear, repeat.</p>
+              </div>
+              <div class="menu-legend">
+                <span class="menu-legend-chip menu-legend-chip--arrival">Arrival</span>
+                <span class="menu-legend-chip menu-legend-chip--departure">Departure</span>
+                <span class="menu-legend-chip menu-legend-chip--urgent">Urgent</span>
+              </div>
+            </div>
+
+            <div class="menu-preview">
+              <div class="menu-preview__hud">
+                <span>Timer</span>
+                <span>Score</span>
+                <span>Safety</span>
+                <span>Efficiency</span>
+                <span>Satisfaction</span>
+              </div>
+
+              <div class="menu-preview__body">
+                <div class="menu-preview__radar">
+                  <div class="preview-runway preview-runway--horizontal"></div>
+                  <div class="preview-runway preview-runway--vertical"></div>
+                  <div class="preview-aircraft preview-aircraft--arrival"></div>
+                  <div class="preview-aircraft preview-aircraft--departure"></div>
+                  <div class="preview-callout preview-callout--select">1. Click aircraft here to select them</div>
+                </div>
+
+                <div class="menu-preview__sidebar">
+                  <div class="preview-panel">
+                    <span>Selected Aircraft</span>
+                    <div class="preview-line preview-line--wide"></div>
+                    <div class="preview-line"></div>
+                  </div>
+                  <div class="preview-panel">
+                    <span>Commands</span>
+                    <div class="preview-button-row">
+                      <div class="preview-button">09/27</div>
+                      <div class="preview-button">18/36</div>
+                    </div>
+                    <div class="preview-button-row">
+                      <div class="preview-button preview-button--accent">Clear Land</div>
+                      <div class="preview-button">Takeoff</div>
+                    </div>
+                    <div class="preview-callout preview-callout--commands">2. Assign runway, then use these buttons</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="menu-briefing-grid">
+              <div class="menu-brief-card">
+                <h3>First 30 Seconds</h3>
+                <ol class="brief-steps">
+                  <li>Click an arrival or departure on the airport map.</li>
+                  <li>Assign it to `09/27` or `18/36` in the command panel.</li>
+                  <li>For arrivals: wait until the runway is open, then `Clear To Land`.</li>
+                  <li>For departures: queue them, `Line Up And Wait` if needed, then `Clear For Takeoff`.</li>
+                </ol>
+              </div>
+
+              <div class="menu-brief-card">
+                <h3>Do Not Do This</h3>
+                <ul class="instructions instructions--tight">
+                  <li>Do not clear an aircraft if the runway card says it is occupied or resetting.</li>
+                  <li>Do not launch a departure when an arrival already has that runway protected.</li>
+                  <li>Do not over-hold everyone. Idle runways hurt efficiency and long waits hurt satisfaction.</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay summary-screen hidden" id="summary-screen">
+      <div class="overlay-card summary-card">
+        <p class="eyebrow" id="summary-status">Round Complete</p>
+        <h2 id="summary-label">Steady Operator</h2>
+        <p class="summary-reason" id="summary-reason"></p>
+        <div class="summary-incident hidden" id="summary-incident">
+          <div class="summary-incident-row">
+            <span>What Happened</span>
+            <strong id="summary-incident-title">Unsafe runway operation</strong>
+          </div>
+          <p class="summary-incident-copy" id="summary-incident-cause"></p>
+          <p class="summary-incident-copy" id="summary-incident-guidance"></p>
+        </div>
+
+        <div class="summary-score-box">
+          <span>Final Score</span>
+          <strong id="summary-score">0</strong>
+          <small id="summary-best">Best score: --</small>
+        </div>
+
+        <div class="summary-grid">
+          <div class="summary-stat">
+            <span>Aircraft Handled</span>
+            <strong id="summary-handled">0</strong>
+          </div>
+          <div class="summary-stat">
+            <span>Arrivals Landed</span>
+            <strong id="summary-landed">0</strong>
+          </div>
+          <div class="summary-stat">
+            <span>Departures Launched</span>
+            <strong id="summary-departed">0</strong>
+          </div>
+          <div class="summary-stat">
+            <span>Average Delay</span>
+            <strong id="summary-delay">0:00</strong>
+          </div>
+          <div class="summary-stat">
+            <span>Go-Arounds</span>
+            <strong id="summary-go-arounds">0</strong>
+          </div>
+          <div class="summary-stat">
+            <span>Safety Incidents</span>
+            <strong id="summary-incidents">0</strong>
+          </div>
+          <div class="summary-stat">
+            <span>Safety / Efficiency / Satisfaction</span>
+            <strong id="summary-meters">100 / 100 / 100</strong>
+          </div>
+          <div class="summary-stat">
+            <span>Difficulty</span>
+            <strong id="summary-difficulty">Easy</strong>
+          </div>
+        </div>
+
+        <div class="summary-actions">
+          <button class="primary-btn" id="play-again-btn" type="button">Play Again</button>
+          <button class="secondary-btn" id="return-menu-btn" type="button">Return To Menu</button>
+        </div>
+      </div>
+    </div>
+
+    <header class="hud">
+      <div class="hud-left">
+        <div class="hud-block">
+          <span class="hud-label">Round Timer</span>
+          <strong id="hud-timer">5:00</strong>
+        </div>
+        <div class="hud-block">
+          <span class="hud-label">Score</span>
+          <strong id="hud-score">0</strong>
+        </div>
+        <div class="hud-block">
+          <span class="hud-label">Difficulty</span>
+          <strong id="hud-difficulty">Easy</strong>
+        </div>
+      </div>
+
+      <div class="meter-strip">
+        <div class="meter-card meter-card--safety">
+          <div class="meter-head">
+            <span>Safety</span>
+            <strong id="hud-safety-value">100</strong>
+          </div>
+          <div class="meter-track">
+            <div class="meter-fill" id="hud-safety-fill"></div>
+          </div>
+        </div>
+        <div class="meter-card meter-card--efficiency">
+          <div class="meter-head">
+            <span>Efficiency</span>
+            <strong id="hud-efficiency-value">100</strong>
+          </div>
+          <div class="meter-track">
+            <div class="meter-fill" id="hud-efficiency-fill"></div>
+          </div>
+        </div>
+        <div class="meter-card meter-card--satisfaction">
+          <div class="meter-head">
+            <span>Satisfaction</span>
+            <strong id="hud-satisfaction-value">100</strong>
+          </div>
+          <div class="meter-track">
+            <div class="meter-fill" id="hud-satisfaction-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <button class="hud-btn" id="pause-btn" type="button">Pause</button>
+        <div class="speed-group">
+          <button class="hud-btn speed-btn is-active" data-speed="1" type="button">1x</button>
+          <button class="hud-btn speed-btn" data-speed="2" type="button">2x</button>
+          <button class="hud-btn speed-btn" data-speed="3" type="button">3x</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="play-layout">
+      <section class="radar-panel">
+        <div class="radar-header">
+          <div>
+            <h2>Airport View</h2>
+            <p id="status-line">Select a target to start controlling traffic.</p>
+          </div>
+          <div class="warning-banner hidden" id="warning-banner"></div>
+        </div>
+        <canvas id="game-canvas" width="1180" height="760" aria-label="Airport traffic map"></canvas>
+      </section>
+
+      <aside class="sidebar">
+        <section class="panel">
+          <div class="panel-head">
+            <h3>Selected Aircraft</h3>
+          </div>
+          <div class="selected-empty" id="selected-empty">
+            Click an aircraft on the map to inspect it and issue commands.
+          </div>
+          <div class="selected-content hidden" id="selected-content">
+            <div class="selected-title-row">
+              <div>
+                <strong id="selected-flight">ATC203</strong>
+                <span class="selected-type" id="selected-type">Arrival</span>
+              </div>
+              <span class="urgency-chip" id="selected-urgency-chip">Normal</span>
+            </div>
+
+            <dl class="detail-list">
+              <div>
+                <dt>Status</dt>
+                <dd id="selected-status">Holding</dd>
+              </div>
+              <div>
+                <dt>Runway</dt>
+                <dd id="selected-runway">Unassigned</dd>
+              </div>
+              <div>
+                <dt>Wait Time</dt>
+                <dd id="selected-wait">0:00</dd>
+              </div>
+              <div>
+                <dt>Profile</dt>
+                <dd id="selected-profile">Standard</dd>
+              </div>
+              <div>
+                <dt>Queue</dt>
+                <dd id="selected-queue">-</dd>
+              </div>
+              <div>
+                <dt>Notes</dt>
+                <dd id="selected-note">Awaiting assignment.</dd>
+              </div>
+            </dl>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h3>Commands</h3>
+          </div>
+
+          <div class="command-section">
+            <span class="command-label">Assign Runway</span>
+            <div class="runway-buttons">
+              <button class="assign-btn" data-runway="RWY_09_27" type="button">09/27</button>
+              <button class="assign-btn" data-runway="RWY_18_36" type="button">18/36</button>
+            </div>
+          </div>
+
+          <div class="command-grid">
+            <button class="command-btn" data-command="clear-land" type="button">Clear To Land</button>
+            <button class="command-btn" data-command="clear-takeoff" type="button">Clear For Takeoff</button>
+            <button class="command-btn" data-command="hold" type="button">Hold</button>
+            <button class="command-btn" data-command="line-up" type="button">Line Up And Wait</button>
+            <button class="command-btn" data-command="go-around" type="button">Go Around</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h3>Runway Status</h3>
+          </div>
+          <div class="runway-status-list" id="runway-status-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h3>Tower Log</h3>
+          </div>
+          <ul class="event-log" id="event-log"></ul>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script defer src="./src/config.js"></script>
+  <script defer src="./src/utils.js"></script>
+  <script defer src="./src/runway.js"></script>
+  <script defer src="./src/airport.js"></script>
+  <script defer src="./src/aircraft.js"></script>
+  <script defer src="./src/spawner.js"></script>
+  <script defer src="./src/scoring.js"></script>
+  <script defer src="./src/ui.js"></script>
+  <script defer src="./src/game.js"></script>
+  <script defer src="./src/main.js"></script>
+</body>
+</html>
